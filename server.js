@@ -478,30 +478,30 @@ app.post('/image',async(req,res)=>{
 
 
 //both whatsapp and mail
-app.post('/api/send-messages', async (req, res) => {
-  const { phones, message, email } = req.body;
+// app.post('/api/send-messages', async (req, res) => {
+//   const { phones, message, email } = req.body;
 
-  try {
-    // Send WhatsApp Messages
-    await sendWhatsAppMessages(phones, message);
-
-
-    // Send Emails
-    await Promise.all(email.map((recipient) => leadEmail(recipient, message)));
+//   try {
+//     // Send WhatsApp Messages
+//     await sendWhatsAppMessages(phones, message);
 
 
-    res.status(200).send('Messages and mails sent successfully!');
-  } catch (error) {
-    console.error('Error occurred while sending messages:', error);
-    res.status(500).send('Error occurred while sending messages');
-  }
-});
+//     // Send Emails
+//     await Promise.all(email.map((recipient) => leadEmail(recipient, message)));
 
-async function sendWhatsAppMessages(phones, message) {
-  await wbm.start();
-  await wbm.send(phones, message);
-  await wbm.end();
-}
+
+//     res.status(200).send('Messages and mails sent successfully!');
+//   } catch (error) {
+//     console.error('Error occurred while sending messages:', error);
+//     res.status(500).send('Error occurred while sending messages');
+//   }
+// });
+
+// async function sendWhatsAppMessages(phones, message) {
+//   await wbm.start();
+//   await wbm.send(phones, message);
+//   await wbm.end();
+// }
 
 
 //send-message
@@ -510,7 +510,6 @@ app.post('/api/send-messages', async (req, res) => {
   console.log("Got request to send messages");
    console.log(req.body);
   try {
-    // Send WhatsApp Messages
     await sendMessagesToNumbers(phones, message);
      var email1 =['feroz1522krish@gmail.com','rahulfrost777@gmail.com','chandrakumar3002@gmail.com','feronarockiam1493@gmail.com','amal.aathif@gmail.com']
 
