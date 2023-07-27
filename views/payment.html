@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Razorpay Payment Integration</title>
+  <!-- Add your styles here -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .app-container {
+      text-align: center;
+    }
+
+    .input-field {
+      margin-bottom: 10px;
+    }
+
+    .submit-button {
+      padding: 10px 20px;
+      background-color: #3399cc;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .submit-button:hover {
+      background-color: #2875a8;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+    <h2>Razorpay Payment Integration</h2>
+    <br />
+    <form id="payment-form">
+      <div class="input-field">
+        Amount: <input type="text" placeholder="Enter Amount" id="amount" />
+      </div>
+      <div class="input-field">
+        Name: <input type="text" placeholder="Enter Name" id="name" />
+      </div>
+      <div class="input-field">
+        Email: <input type="text" placeholder="Enter Email" id="email" />
+      </div>
+      <div class="input-field">
+        Phone No.: <input type="text" placeholder="Enter Mobile" id="phone" />
+      </div>
+      <button class="submit-button" type="button" onclick="handlePayment()">Submit</button>
+    </form>
+
+    <!-- Add the necessary JavaScript libraries -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+      function handlePayment() {
+        var amount = document.getElementById("amount").value;
+        var name = document.getElementById("name").value;
+        var email = document.getElementById("email").value;
+        var phone = document.getElementById("phone").value;
+
+        if (amount === "") {
+          alert("Please enter the amount");
+        } else {
+          var options = {
+            key: "rzp_test_KwgPd9YFCPRG14", // Replace with your actual Razorpay API key
+            amount: amount * 100,
+            currency: "INR",
+            name: "STARTUP_PROJECTS",
+            description: "for testing purpose",
+            prefill: {
+              name: name,
+              email: email,
+              contact: phone
+            },
+            notes: {
+              address: "Razorpay Corporate office"
+            },
+            theme: {
+              color: "#3399cc"
+            }
+          };
+
+          var rzp = new Razorpay(options);
+
+          rzp.on('payment.success', function (response) {
+            const payment = response.razorpay_payment_id;
+            alert("Payment Successful!\nPayment ID: " + payment);
+          });
+
+          rzp.on('payment.error', function (response) {
+            alert("Payment Failed!");
+          });
+
+          rzp.open();
+        }
+      }
+    </script>
+  </div>
+</body>
+
+</html>

@@ -3,6 +3,10 @@ const express = require('express');
 const { MongoClient } = require('mongodb');
 const { sendEmail } = require('./schedule-mail');
 const { leadEmail } = require('./lead-mail');
+const nodemailer = require('nodemailer');
+const twilio = require('twilio')
+const { Parser } = require('json2csv');
+const cors = require('cors');
 const ExcelJS = require('exceljs');
 const fs = require('fs');
 const wbm = require('wbm')
@@ -11,16 +15,24 @@ const app = express();
 const bodyparser = require('body-parser')
 const url = 'mongodb+srv://themisto:12345@cluster0.wcoy5xl.mongodb.net/Test?retryWrites=true&w=majority';
 const port = 4000
+
+//middlewares
+app.use(cors());
 app.use(bodyparser.json());
 app.use(express.urlencoded({extended:false}));
 app.use(express.static("views"))
 app.use(express.static("assets"))
+
+
+//html page
 app.get('/shop',(req,res)=>{
     res.sendFile(path.join(__dirname,'/views/shop.html'))
 })
 app.get('/',(req,res)=>{
   res.sendFile(path.join(__dirname,'/views/index.html'))
 })
+
+
 let client;
 
 async function connectToDatabase() {
@@ -68,6 +80,13 @@ async function fetchSchedule() {
   return schedule;
 }
 
+
+//rendering html pages
+app.get('/html', (req, res) => {
+  res.sendFile(path.join(__dirname, '/views/payment.html'));
+});
+
+//login
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
 
@@ -81,6 +100,8 @@ app.post('/login', (req, res) => {
     });
 });
 
+
+//leads with high medium low
 app.post('/leads', async (req, res) => {
   const { column, condition } = req.body;
 
@@ -93,11 +114,13 @@ app.post('/leads', async (req, res) => {
   }
 });
 
-
+//test html
 app.get('/html',(req,res)=>{
   res.sendFile(path.join(__dirname,'download.html'))
 })
 
+
+//get the details of availability
 app.get('/schedule', (req, res) => {
   fetchSchedule()
     .then(schedule => {
@@ -109,14 +132,9 @@ app.get('/schedule', (req, res) => {
     });
 });
 
-// ...
-
-
+//details of the leads
 
 let csvData = '';
-// ...
-
-const { Parser } = require('json2csv');
 
 app.post('/api/fetch', async (req, res) => {
   const { column, condition, number } = req.body;
@@ -214,12 +232,7 @@ app.post('/api/fetch', async (req, res) => {
   }
 });
 
-
-
-
-const nodemailer = require('nodemailer');
-
-// ... (Previous code)
+//sends the excel file in mail of the recipient
 
 app.post('/download', async (req, res) => {
   const { email } = req.body;
@@ -274,15 +287,6 @@ app.post('/download', async (req, res) => {
   }
 });
 
-// ... (Rest of the code)
-
-
-
-
-
-
-
-
 
 // app.post('/download', async (req, res) => {
 //   if (csvData) {
@@ -313,7 +317,7 @@ app.post('/download', async (req, res) => {
 //   }
 // });
 
-
+//just to know
 app.post('/api/fetch-with-symbols', async (req, res) => {
   console.log(req.body);
   const { condition, number, column } = req.body;
@@ -362,7 +366,7 @@ app.post('/api/fetch-with-symbols', async (req, res) => {
 });
 
 
-
+//must explore whatsapp
 app.post('/api/send-whatsapp', async (req, res) => {
   const { phones, message } = req.body;
 
@@ -379,6 +383,8 @@ app.post('/api/send-whatsapp', async (req, res) => {
   }
 });
 
+
+//fetch  based on age
 app.post('/fetch/age', async (req, res) => {
   console.log(req.body);
   const { condition, number } = req.body;
@@ -424,8 +430,7 @@ app.post('/fetch/age', async (req, res) => {
   }
 });
 
-// ...
-
+//scheduling main api
 app.post('/send-email', (req, res) => {
   const { name, email, date, time, meet, address } = req.body;
 
@@ -438,6 +443,8 @@ app.post('/send-email', (req, res) => {
       res.status(500).send('Error occurred while sending email');
     });
 });
+
+
 // app.post('/leadsEmails', async (req, res) => {
 //   const { message, email } = req.body;
 
@@ -450,6 +457,8 @@ app.post('/send-email', (req, res) => {
 //   }
 // });
 
+
+//gets the image url on the category
 app.post('/image',async(req,res)=>{
   const category = req.body.category
   const db = client.db()
@@ -464,6 +473,9 @@ app.post('/image',async(req,res)=>{
 
 })
 
+
+
+//both whatsapp and mail
 app.post('/api/send-messages', async (req, res) => {
   const { phones, message, email } = req.body;
 
@@ -490,9 +502,121 @@ async function sendWhatsAppMessages(phones, message) {
 }
 
 
+//send-message
+app.post('/api/send-messages', async (req, res) => {
+  const { phones, message, email } = req.body;
+  console.log("Got request to send messages");
+   console.log(req.body);
+  try {
+    // Send WhatsApp Messages
+    await sendMessagesToNumbers(phones, message);
+     var email1 =['feroz1522krish@gmail.com','rahulfrost777@gmail.com','chandrakumar3002@gmail.com','feronarockiam1493@gmail.com','amal.aathif@gmail.com']
+
+    // Send Emails
+    await Promise.all(email1.map((recipient) => leadEmail(recipient, message)));
+
+
+    res.status(200).send('Messages and mails sent successfully!');
+  } catch (error) {
+    console.error('Error occurred while sending messages:', error);
+    res.status(500).send('Error occurred while sending messages');
+  }
+});
+
+
+//call twilio
+async function sendMessagesToNumbers(phones, message) {
+  const accountSid = 'AC1ac36f1991b197022980b1ceb531a866';
+  const authToken = 'c35b2b2808d4afd805c5bc316bdf9e75';
+  const client = twilio(accountSid, authToken);
+  phones =['+918525091777','+919994792614','+918667506596','+919944427493','+917397727971']
+  for (const number of phones) {
+    try {
+      await client.messages.create({
+        body: message,
+        from: '+18787897149',
+        to: number
+      });
+      console.log(`Message sent to ${number}`);
+    } catch (error) {
+      console.error(`Failed to send message to ${number}`, error);
+      throw error;
+    }
+  }
+}
 
 
 
+
+//------------------------SEND_CALL-------------------------------------
+const scheduleCall = (phoneNumber, message, callTime) => {
+  const now = Date.now();
+  const timeDifference = new Date(callTime).getTime() - now;
+  const timeRemainingInSeconds = timeDifference / 1000; // Convert to seconds
+
+  if (timeDifference <= 0) {
+    // If the specified time is already passed, make the call immediately
+    makeCall(phoneNumber, message);
+  } else {
+    console.log(`Scheduling call to ${phoneNumber} in ${timeRemainingInSeconds} seconds...`);
+
+    // Check if the time difference exceeds the maximum timeout duration
+    const maxTimeout = 2147483647; // Maximum value for setTimeout on 32-bit systems
+    if (timeDifference > maxTimeout) {
+      // If the time difference exceeds the maximum, schedule a shorter timeout
+      setTimeout(() => scheduleCall(phoneNumber, message, callTime), maxTimeout);
+    } else {
+      // Otherwise, schedule the call with the calculated time difference
+      setTimeout(() => makeCall(phoneNumber, message), timeDifference);
+    }
+  }
+};
+
+
+// Function to make the call
+const makeCall = (phoneNumber, message) => {
+  const accountSid = 'AC1ac36f1991b197022980b1ceb531a866';
+  const authToken = 'c35b2b2808d4afd805c5bc316bdf9e75';
+  const client = twilio(accountSid, authToken);
+  client.calls.create({
+    twiml: `<Response><Say>${message}</Say></Response>`,
+    to: phoneNumber,
+    from: '+18787897149'
+  })
+  .then(call => console.log(`Call SID: ${call.sid} to ${phoneNumber}`))
+  .catch(error => console.error(`Error making call to ${phoneNumber}: ${error.message}`));
+};
+
+// POST endpoint to handle incoming API requests
+app.post('/make-call', (req, res) => {
+  const { message, phoneNumbers, callTime } = req.body;
+  console.log(req.body);
+  phoneNumbers1=["+918525091777"]
+
+  if (!message || !phoneNumbers || !Array.isArray(phoneNumbers1) || phoneNumbers1.length === 0 || !callTime) {
+    return res.status(400).json({ error: 'Invalid request body' });
+  }
+
+  phoneNumbers1.forEach(phoneNumber => {
+    scheduleCall(phoneNumber, message, callTime);
+  });
+
+  res.status(200).json({ message: 'Calls scheduled successfully' });
+});
+
+
+//------------------------SEND-CALL-------------------------------------
+
+
+// Start server
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`); 
+});
+
+
+
+
+//dump
 
 
 // // Imports
@@ -558,12 +682,3 @@ async function sendWhatsAppMessages(phones, message) {
 //     res.status(500).send('Error scheduling the meeting.');
 //   }
 // });
-
-
-
-
-
-// Start server
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`); 
-});
