@@ -11,12 +11,14 @@ const ExcelJS = require('exceljs');
 const fs = require('fs');
 const wbm = require('wbm')
 const path = require('path')
+require('dotenv').config();
 const app = express();
 const bodyparser = require('body-parser')
-const url = 'mongodb+srv://themisto:12345@cluster0.wcoy5xl.mongodb.net/Test?retryWrites=true&w=majority';
-const port = 4000
+const url = process.env.DB_USER;
+const port = process.env.PORT || 4000
 
 //middlewares
+
 app.use(cors());
 app.use(bodyparser.json());
 app.use(express.urlencoded({extended:false}));
@@ -526,8 +528,8 @@ app.post('/api/send-messages', async (req, res) => {
 
 //call twilio
 async function sendMessagesToNumbers(phones, message) {
-  const accountSid = 'AC1ac36f1991b197022980b1ceb531a866';
-  const authToken = 'c35b2b2808d4afd805c5bc316bdf9e75';
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
   const client = twilio(accountSid, authToken);
   phones =['+918525091777','+919994792614','+918667506596','+919944427493','+917397727971']
   for (const number of phones) {
@@ -575,8 +577,8 @@ const scheduleCall = (phoneNumber, message, callTime) => {
 
 // Function to make the call
 const makeCall = (phoneNumber, message) => {
-  const accountSid = 'AC1ac36f1991b197022980b1ceb531a866';
-  const authToken = 'c35b2b2808d4afd805c5bc316bdf9e75';
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
   const client = twilio(accountSid, authToken);
   client.calls.create({
     twiml: `<Response><Say>${message}</Say></Response>`,
