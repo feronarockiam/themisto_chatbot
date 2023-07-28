@@ -450,22 +450,17 @@ app.post('/send-email', (req, res) => {
 
 const TELEGRAM_BOT_TOKEN = '6579196501:AAHvFDDMeq7MkOs_btCtr0aHqZ_nUjgEf_A';
 
-// Function to get Telegram chat ID
-async function getChatIdByPhone(phoneNumber) {
-
-  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getChat?phone_number=${phoneNumber}`;
-
+async function getTelegramChatId(username) {
   try {
-    const response = await axios.get(url);
-    return response.data.result.id; 
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getChat`;
+    const response = await axios.post(url, { chat_id: username });
+    return response.data.result.id;
   } catch (error) {
     console.error('Error getting chat ID:', error.message);
-    return null;
+    throw error;
   }
-
 }
 
-// Function to send a message using the Telegram Bot API
 async function sendTelegramMessage(chatId, message) {
   try {
     const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
@@ -483,21 +478,17 @@ async function sendTelegramMessage(chatId, message) {
 
 // Combined route for handling '/telegram'
 app.post('/telegram', async (req, res) => {
-
-  const phoneNumber = req.body.phoneNumber;
-  const message = req.body.message;
-
-  const chatId = await getChatIdByPhone(phoneNumber);
-
-  if (!chatId) {
-    return res.status(404).send('No chat id found');
+  try {
+    const { message, username } = req.body;
+    const chatId = await getTelegramChatId(username); // Pass the username from the request body
+    await sendTelegramMessage(chatId, message);
+    res.send('Message sent!');
+  } catch (error) {
+    console.error('Error handling /telegram:', error.message);
+    res.status(500).send('Error handling /telegram');
   }
-
-  await sendMessage(chatId, message);
-  
-  res.send('Message sent!');
-
 });
+
 
 
 
