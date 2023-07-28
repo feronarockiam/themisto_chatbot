@@ -122,6 +122,27 @@ app.get('/html',(req,res)=>{
   res.sendFile(path.join(__dirname,'download.html'))
 })
 
+async function insertFeedback(email, satisfaction, message) {
+  const db = client.db();
+  const collection = db.collection('feedback');
+  const feedback = { email, satisfaction, message, createdAt: new Date() };
+  await collection.insertOne(feedback);
+  client.close();
+}
+
+// API endpoint to handle feedback submission
+app.post('/api/feedback', async (req, res) => {
+  try {
+    const { email, satisfaction, message } = req.body;
+    
+    // Insert the feedback into MongoDB
+    await insertFeedback(email, satisfaction, message);
+    
+    res.status(201).json({ message: 'Feedback submitted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to submit feedback' });
+  }
+});
 
 //get the details of availability
 app.get('/schedule', (req, res) => {
