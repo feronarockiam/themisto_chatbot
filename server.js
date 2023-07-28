@@ -127,7 +127,6 @@ async function insertFeedback(email, satisfaction, message) {
   const collection = db.collection('feedback');
   const feedback = { email, satisfaction, message, createdAt: new Date() };
   await collection.insertOne(feedback);
-  client.close();
 }
 
 // API endpoint to handle feedback submission
