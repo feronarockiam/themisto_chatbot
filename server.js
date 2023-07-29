@@ -600,7 +600,7 @@ async function sendMessagesToNumbers(phones, message) {
     try {
       await client.messages.create({
         body: message,
-        from: '+18787897149',
+        from: '+17623395651',
         to: number
       });
       console.log(`Message sent to ${number}`);
@@ -647,7 +647,7 @@ const makeCall = (phoneNumber, message) => {
   client.calls.create({
     twiml: `<Response><Say>${message}</Say></Response>`,
     to: phoneNumber,
-    from: '+18787897149'
+    from: '+17623395651'
   })
   .then(call => console.log(`Call SID: ${call.sid} to ${phoneNumber}`))
   .catch(error => console.error(`Error making call to ${phoneNumber}: ${error.message}`));
