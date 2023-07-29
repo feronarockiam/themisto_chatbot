@@ -12,7 +12,7 @@ function sendEmail(name, email, date, time, meet, address) {
     let mailHTML = `<html>
       <body style="font-family: 'Arial', sans-serif;">
         <div style="text-align: center;">
-          <img src="./views/assets/images/botlogo.png" alt="" width="250" height="250" style="display: block; margin: 0 auto;">
+          <img src="https://helloyubo.com/wp-content/uploads/2021/07/How-To-Integrate-The-Chatbot-With-Email-Marketing.jpg" alt="" width="400" height="250" style="display: block; margin: 0 auto;">
           <h1 style="font-family: 'Pacifico', cursive; color: #007BFF; margin: 0 auto;">Themisto Sales Bot</h1>
         </div>`;
 
