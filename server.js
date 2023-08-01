@@ -598,7 +598,47 @@ app.post('/image',async(req,res)=>{
 
 })
 
+// Replace with your actual Razorpay API key
+const razorpayKey = 'rzp_test_KwgPd9YFCPRG14';
 
+// Handle API request to initiate the payment
+app.post('/initiate-payment', (req, res) => {
+  const { amount, name, email, phone } = req.body;
+
+  var options = {
+    key: "rzp_test_KwgPd9YFCPRG14",
+    amount: amount * 100,
+    currency: 'INR',
+    name: 'STARTUP_PROJECTS',
+    description: 'for testing purpose',
+    prefill: {
+      name: name,
+      email: email,
+      contact: phone,
+    },
+    notes: {
+      address: 'Razorpay Corporate office',
+    },
+    theme: {
+      color: '#3399cc',
+    },
+  };
+
+  var rzp = new Razorpay(options);
+
+  rzp.on('payment.success', function (response) {
+    const payment = response.razorpay_payment_id;
+    res.send({ status: 'success', paymentId: payment });
+  });
+
+  rzp.on('payment.error', function () {
+    res.status(400).send({ status: 'error' });
+  });
+
+  rzp.open();
+});
+
+// 
 
 //both whatsapp and mail
 // app.post('/api/send-messages', async (req, res) => {
