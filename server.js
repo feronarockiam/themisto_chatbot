@@ -284,10 +284,65 @@ app.post('/download', async (req, res) => {
 
       // Set up the mail options
       const mailOptions = {
-        from: 'themisto.sales@gmail.com', // Replace with your Gmail email address
+        from: 'themisto.sales@gmail.com',
         to: email,
         subject: 'Data Spreadsheet',
-        text: `Please download the attached excel sheet with your data!!!`,
+        html: `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <style>
+              /* Define different font styles */
+              .title {
+                font-family: 'Arial', sans-serif;
+                font-size: 24px;
+                text-align: center;
+                margin-bottom: 20px; /* Add margin at the bottom of the title */
+              }
+              .content {
+                font-family: 'Verdana', sans-serif;
+                font-size: 16px;
+                text-align: center;
+                padding: 0 20px; /* Add padding to the content for better spacing */
+              }
+              /* Add some padding to the image to center it */
+              .centered-image {
+                display: block;
+                margin: 0 auto;
+              }
+              /* Use flex container to align image and content */
+              .container {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              }
+              /* Apply left margin to the image */
+              .image-container {
+                margin-right: 20px;
+              }
+            </style>
+          </head>
+          <body>
+            <!-- Flex container for image and content -->
+            <div class="container">
+              <!-- Left-aligned Image -->
+              <div class="image-container">
+                <img src="https://res.cloudinary.com/dngzcanli/image/upload/v1690712702/themistoCK_um3io0.jpg" alt="Centered Image" class="centered-image" width="350" height="200">
+              </div>
+              <!-- Content with Emoji -->
+              <div>
+                <div class="title">📊 Data Spreadsheet 📊</div>
+                <div class="content">
+                  Hi there! 😃<br>
+                  Please find the attached Excel sheet containing your data.<br>
+                  If you have any questions or need further assistance, feel free to reach out to us.<br>
+                  Thank you! 👍
+                </div>
+              </div>
+            </div>
+          </body>
+          </html>
+        `,
         attachments: [
           {
             filename: 'data.xlsx',
@@ -295,6 +350,9 @@ app.post('/download', async (req, res) => {
           },
         ],
       };
+      
+      
+      
 
       // Send the email with the Excel file attachment
       await transporter.sendMail(mailOptions);
