@@ -93,21 +93,22 @@
 
     var rzp = new Razorpay(options);
 
-    rzp.on("payment.success", function (response) {
-      const payment = response.razorpay_payment_id;
-      alert("Payment Successful!\nPayment ID: " + payment);
-
+    rzp.on("payment_id", function (payment_id) {
+      console.log("Payment Successful!\nPayment ID: " + payment_id);
       // Redirect to the desired URL after successful payment
-      window.location.href = "https://themisto.onrender.com"; // Replace with the desired URL
+      window.location.href = "https://example.com/success"; // Replace with the desired URL
     });
 
-    rzp.on("payment.error", function (response) {
+    rzp.on("payment.failed", function (response) {
       alert("Payment Failed!");
     });
 
+    // Show the Razorpay popup
     rzp.open();
   }
 }
+
+
 
     </script>
   </div>
