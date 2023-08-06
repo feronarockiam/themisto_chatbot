@@ -237,6 +237,7 @@ a:focus {
 
 /*end header section*/
 .slider_section .slider_container {
+  z-index: -1;
   color: #fefefe;
   background-color: #000000;
   background-color: #f595d9;

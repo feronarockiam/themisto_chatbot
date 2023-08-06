@@ -267,6 +267,7 @@ a:focus {
 
   .slider_container {
     color: #fefefe;
+    z-index: -1;
     background-color: $black;
     background-color: #f89cab;
     padding: 25px;
