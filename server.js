@@ -777,7 +777,53 @@ app.listen(port, () => {
   console.log(`Server running on port ${port}`); 
 });
 
+//webhook
 
+app.get('/webhook', (req, res) => {
+  res.sendFile(path.join(__dirname, '/views/webhook.html'));
+});
+
+let storedBotResponses = [];
+
+app.post('/send-message', async (req, res) => {
+  const inputMessage = req.body.message;
+
+  try {
+      const apiResponse = await fetchBotResponse(inputMessage);
+      storedBotResponses.push(apiResponse.text); // Add the new response to the array
+
+      res.status(200).json({ success: true });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, error: 'An error occurred' });
+  }
+});
+
+app.get('/bot-responses', (req, res) => {
+  const uniqueResponses = Array.from(new Set(storedBotResponses)); // Get unique responses
+  res.send(uniqueResponses.join('\n')); // Join unique responses with line breaks
+});
+
+async function fetchBotResponse(message) {
+  const response = await fetch('https://bots.kore.ai/chatbot/hooks/st-719544f8-142e-5050-90ff-867237cc7bd5/hookInstance/ivrInst-65af04e2-775c-5b52-9a79-5a7ac16d6408', {
+      method: 'POST',
+      headers: {
+          'Authorization': 'bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwczovaWRwcm94eS5rb3JlLmFpL2F1dGhvcml6ZSIsInN1YiI6Inpvb21BcGkiLCJpc0Fub255bW91cyI6dHJ1ZSwiaXNzIjoiY3MtYjVkZmFiNjAtZjdhNy01ZGNmLTljZWMtMjAzZTQ4ZTEyZWI0IiwiZXhwIjo5OTk5OTk5OTk5LCJpYXQiOjE1MTYyMzkwMjJ9.nyHTpPE9DC3v5us8y3XROyGblkWVOr_Orj8i6eqjq7s', // Replace with your actual access token
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+          message: {
+              text: message
+          },
+          from: {
+              id: 'random_string'
+          }
+      })
+  });
+
+  const jsonResponse = await response.json();
+  return jsonResponse;
+}
 
 
 //dump
