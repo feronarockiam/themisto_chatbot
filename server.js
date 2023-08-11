@@ -3,6 +3,7 @@ const express = require('express');
 const { MongoClient } = require('mongodb');
 const { sendEmail } = require('./schedule-mail');
 const { leadEmail } = require('./lead-mail');
+const fetch = require('cross-fetch');
 const nodemailer = require('nodemailer');
 const twilio = require('twilio')
 const axios = require('axios')
